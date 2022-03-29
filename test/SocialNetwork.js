@@ -30,10 +30,12 @@ require('chai')
     
     describe('posts', async () => {
       let result, postCount
-      it('creates posts', async() => {
+      before(async () => {
         result = await socialNetwork.createPost('hello!', { from: author });
         postCount = await socialNetwork.postCount();
         
+      })
+      it('creates posts', async() => {
         // SUCCESS
         assert.equal(postCount, 1);
         const event = result.logs[0].args
@@ -45,9 +47,13 @@ require('chai')
         // FAILURE: Post must have content
         await socialNetwork.createPost('', { from: author }).should.be.rejected;
       })
-      // it('lists all the posts', async() => {
-
-      // })
+      it('lists all the posts', async() => {
+        const post = await socialNetwork.posts(postCount)
+        assert.equal(post.id.toNumber(), postCount.toNumber(), 'id is correct');
+        assert.equal(post.content, 'hello!', 'content is correct');
+        assert.equal(post.tipAmount, '0', 'tipAmount is correct');
+        assert.equal(post.author, author, 'author is correct');
+      })
       // it('allows users to tip posts', async() => {
 
       // })
